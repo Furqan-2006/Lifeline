@@ -1,6 +1,7 @@
 # Lifeline: Contracts
 
 **Version:** v0.1-draft (not frozen)
+
 **Purpose:** The four agreements that let three people build modules independently. After the freeze, code is written against this document, and the document changes only through the process in section 6.
 
 | Contract                      | Fixes                                              | Main consumers                                |
