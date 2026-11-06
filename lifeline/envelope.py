@@ -52,6 +52,8 @@ class Envelope:
 
 def signed_bytes(raw_frame: bytes) -> bytes:
     """
+    This function returns the signed bytes which WP3 (Crypto) verifies the Ed25519 signature and for that it must know which
+    bytes were signed.
     Contract 1.5: The signed bytes are the ASCII prefix 'LIFELINE-v1', 
     then bytes 0 to 2 of the frame, then bytes 4 up to the start of the signature.
     (TTL at byte 3 and the 64-byte signature are excluded).
@@ -68,8 +70,11 @@ def signed_bytes(raw_frame: bytes) -> bytes:
 
 def decode(raw_frame: bytes) -> Envelope:
     """
-    Decodes raw bytes into an Envelope.
-    Must enforce Contract 1.6 validation rules.
+    Takes untrusted bytes from n/w layer, validates them and lets valid msgs to application and incase of validation failure
+    throws a decode error to signal 'Flood Engine' which simply logs & ignores it.
+    
+    This function decodes raw bytes into an Envelope.
+    Ensures enforcement of Contract 1.6 validation rules.
     """
     # Guard 1: Absolute minimum size (65 header + 0 payload + 64 sig)
     if len(raw_frame) < BASE_HEADER_LEN + SIGNATURE_LEN:
@@ -141,3 +146,32 @@ def decode(raw_frame: bytes) -> Envelope:
         payload=payload,
         signature=signature
     )
+
+def encode(env: Envelope) -> bytes:
+    """
+    Takes an Envelope object we created in memory, and serialize it to raw network bytes so WP1 (Flood Engine) can send it.
+    Serializes an Envelope object into raw network bytes.
+    Matches Contract 1.1 Layout.
+    """
+    # 1. Pack the fixed 65-byte base header
+    base_header = BASE_HEADER_FORMAT.pack(
+        env.version,
+        env.msg_type,
+        env.priority,
+        env.ttl,
+        env.msg_id,
+        env.seq_num,
+        env.sender_pubkey,
+        env.recipient_node_id,
+        env.payload_len
+    )
+    
+    # 2. Pack the 44-byte extension ONLY if it's a TEXT message
+    ext_bytes = b""
+    if env.msg_type == MsgType.TEXT:
+        if not env.ephemeral_pubkey or not env.nonce:
+            raise ValueError("TEXT messages must include ephemeral_pubkey and nonce.")
+        ext_bytes = TEXT_EXT_FORMAT.pack(env.ephemeral_pubkey, env.nonce)
+        
+    # 3. Concatenate all parts (Header + [Extension] + Payload + Signature)
+    return base_header + ext_bytes + env.payload + env.signature
