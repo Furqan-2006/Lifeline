@@ -16,8 +16,8 @@
 | Member         | Approved |
 | -------------- | -------- |
 | Furqan (M1)    | Yes      |
-| Abdullah (M2)  |          |
-| Abu Bakar (M3) |          |
+| Abdullah (M2)  | Yes      |
+| Abu Bakar (M3) | Yes      |
 
 ---
 
