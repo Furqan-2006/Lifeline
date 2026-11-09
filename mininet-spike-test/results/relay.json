@@ -1,0 +1,59 @@
+{
+  "verdict": "INFO",
+  "frames": 500,
+  "rows": [
+    {
+      "handheld_to_relay": 1.0,
+      "relay_to_handheld": 1.0,
+      "distance_m": 100
+    },
+    {
+      "handheld_to_relay": 1.0,
+      "relay_to_handheld": 1.0,
+      "distance_m": 200
+    },
+    {
+      "handheld_to_relay": 1.0,
+      "relay_to_handheld": 1.0,
+      "distance_m": 300
+    },
+    {
+      "handheld_to_relay": 1.0,
+      "relay_to_handheld": 1.0,
+      "distance_m": 400
+    },
+    {
+      "handheld_to_relay": 1.0,
+      "relay_to_handheld": 1.0,
+      "distance_m": 500
+    },
+    {
+      "handheld_to_relay": 0.0,
+      "relay_to_handheld": 0.0,
+      "distance_m": 600
+    }
+  ],
+  "asymmetric_at_m": [],
+  "symmetric": true,
+  "r90_handheld_to_relay_m": 500,
+  "r90_relay_to_handheld_m": 500,
+  "radio": {
+    "hand_txpower_dbm": 20,
+    "relay_txpower_dbm": 48
+  },
+  "headline": {
+    "relay_to_handheld_r90_m": 500,
+    "handheld_to_relay_r90_m": 500,
+    "symmetric": true,
+    "radio": {
+      "hand_txpower_dbm": 20,
+      "relay_txpower_dbm": 48
+    }
+  },
+  "meta": {
+    "exponent": 4.0,
+    "quick": false,
+    "host_python": "3.14.4",
+    "when": "2026-11-09 16:35:22"
+  }
+}

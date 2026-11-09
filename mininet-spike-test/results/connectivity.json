@@ -1,0 +1,45 @@
+{
+  "verdict": "INFO",
+  "handheld_r90_m": 100.0,
+  "relay_r90_m": 500.0,
+  "scenarios": {
+    "proposal 1200x1200 m, 24 handhelds + 6 relays": {
+      "handheld_mean_degree": 0.5877708333333334,
+      "largest_component": 0.22908333333333333,
+      "far_pairs_connected": 0.004548453666137885
+    },
+    "corridor 1200x150 m, 26 handhelds + 4 relays": {
+      "handheld_mean_degree": 3.493730769230769,
+      "largest_component": 0.6796,
+      "far_pairs_connected": 0.2321418783534413
+    },
+    "clustered 3x8 handhelds (200x200 m) + 6 relays": {
+      "handheld_mean_degree": 3.9964791666666666,
+      "largest_component": 0.7556833333333334,
+      "far_pairs_connected": 0.4073055660076992
+    }
+  },
+  "headline": {
+    "proposal 1200x1200 m, 24 handhelds + 6 relays": {
+      "handheld_mean_degree": 0.5877708333333334,
+      "largest_component": 0.22908333333333333,
+      "far_pairs_connected": 0.004548453666137885
+    },
+    "corridor 1200x150 m, 26 handhelds + 4 relays": {
+      "handheld_mean_degree": 3.493730769230769,
+      "largest_component": 0.6796,
+      "far_pairs_connected": 0.2321418783534413
+    },
+    "clustered 3x8 handhelds (200x200 m) + 6 relays": {
+      "handheld_mean_degree": 3.9964791666666666,
+      "largest_component": 0.7556833333333334,
+      "far_pairs_connected": 0.4073055660076992
+    }
+  },
+  "meta": {
+    "exponent": 4.0,
+    "quick": false,
+    "host_python": "3.14.4",
+    "when": "2026-11-09 16:47:19"
+  }
+}

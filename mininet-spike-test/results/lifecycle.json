@@ -1,0 +1,80 @@
+{
+  "verdict": "PASS",
+  "baseline": {
+    "net_interfaces": 4,
+    "wifi_interfaces": 1,
+    "wmediumd_processes": 0
+  },
+  "cycles": [
+    {
+      "cycle": 1,
+      "build_s": 27.980100293996657,
+      "stop_s": 2.0943235630002164,
+      "after": {
+        "net_interfaces": 4,
+        "wifi_interfaces": 1,
+        "wmediumd_processes": 0
+      }
+    },
+    {
+      "cycle": 2,
+      "build_s": 28.210982967000746,
+      "stop_s": 1.9765791919999174,
+      "after": {
+        "net_interfaces": 4,
+        "wifi_interfaces": 1,
+        "wmediumd_processes": 0
+      }
+    },
+    {
+      "cycle": 3,
+      "build_s": 28.51598250999814,
+      "stop_s": 2.035453521999443,
+      "after": {
+        "net_interfaces": 4,
+        "wifi_interfaces": 1,
+        "wmediumd_processes": 0
+      }
+    },
+    {
+      "cycle": 4,
+      "build_s": 28.08208816000115,
+      "stop_s": 2.0051263620007376,
+      "after": {
+        "net_interfaces": 4,
+        "wifi_interfaces": 1,
+        "wmediumd_processes": 0
+      }
+    },
+    {
+      "cycle": 5,
+      "build_s": 28.32531113100049,
+      "stop_s": 1.9815659539999615,
+      "after": {
+        "net_interfaces": 4,
+        "wifi_interfaces": 1,
+        "wmediumd_processes": 0
+      }
+    }
+  ],
+  "leaks_after_last_cycle": {
+    "net_interfaces": 0,
+    "wifi_interfaces": 0,
+    "wmediumd_processes": 0
+  },
+  "headline": {
+    "leaks": {
+      "net_interfaces": 0,
+      "wifi_interfaces": 0,
+      "wmediumd_processes": 0
+    },
+    "build_s_mean": 28.222893012399435,
+    "stop_s_mean": 2.018609718600055
+  },
+  "meta": {
+    "exponent": 4.0,
+    "quick": false,
+    "host_python": "3.14.4",
+    "when": "2026-11-09 16:47:18"
+  }
+}
