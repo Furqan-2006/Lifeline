@@ -1,0 +1,92 @@
+{
+  "verdict": "PASS",
+  "frames": 500,
+  "distances_m": [
+    500,
+    510,
+    520,
+    530,
+    540,
+    550,
+    560,
+    570,
+    580,
+    590,
+    600
+  ],
+  "rows": [
+    {
+      "distance_m": 500,
+      "handheld_to_relay": 1.0,
+      "relay_to_handheld": 1.0
+    },
+    {
+      "distance_m": 510,
+      "handheld_to_relay": 1.0,
+      "relay_to_handheld": 1.0
+    },
+    {
+      "distance_m": 520,
+      "handheld_to_relay": 1.0,
+      "relay_to_handheld": 1.0
+    },
+    {
+      "distance_m": 530,
+      "handheld_to_relay": 0.0,
+      "relay_to_handheld": 0.0
+    },
+    {
+      "distance_m": 540,
+      "handheld_to_relay": 0.0,
+      "relay_to_handheld": 0.0
+    },
+    {
+      "distance_m": 550,
+      "handheld_to_relay": 0.0,
+      "relay_to_handheld": 0.0
+    },
+    {
+      "distance_m": 560,
+      "handheld_to_relay": 0.0,
+      "relay_to_handheld": 0.0
+    },
+    {
+      "distance_m": 570,
+      "handheld_to_relay": 0.0,
+      "relay_to_handheld": 0.0
+    },
+    {
+      "distance_m": 580,
+      "handheld_to_relay": 0.0,
+      "relay_to_handheld": 0.0
+    },
+    {
+      "distance_m": 590,
+      "handheld_to_relay": 0.0,
+      "relay_to_handheld": 0.0
+    },
+    {
+      "distance_m": 600,
+      "handheld_to_relay": 0.0,
+      "relay_to_handheld": 0.0
+    }
+  ],
+  "headline": {
+    "handheld_to_relay_r90_m": 520,
+    "handheld_to_relay_r10_m": 530,
+    "relay_to_handheld_r90_m": 520,
+    "relay_to_handheld_r10_m": 530,
+    "symmetric": true,
+    "non_monotonic": [],
+    "monotonicity_ok": true,
+    "edge_beyond_max_h2r": false,
+    "edge_beyond_max_r2h": false,
+    "interpretation": "measured_threshold_bracket_monotonic"
+  },
+  "meta": {
+    "exponent": 4.0,
+    "quick": false,
+    "host_python": "3.14.4",
+    "when": "2026-11-09 22:44:00"
+  }
+}

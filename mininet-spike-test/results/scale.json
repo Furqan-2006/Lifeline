@@ -1,0 +1,84 @@
+{
+  "verdict": "PASS",
+  "rows": [
+    {
+      "nodes": 5,
+      "build_s": 19.67154918899905,
+      "cpu_busy_pct": 2.9135576874270375,
+      "loadavg": 1.39794921875,
+      "mem_used_mb": 357.859375,
+      "stop_s": 1.753900159998011,
+      "data_tx_per_message": 5.0,
+      "missing_summaries": [],
+      "hello_delivery_ratio": 1.0,
+      "flood_reach_mean": 1.0,
+      "flood_latency_ms_median": 2.1412465011962922,
+      "flood_latency_ms_p95": 2.2759554492949974,
+      "pass": true
+    },
+    {
+      "nodes": 15,
+      "build_s": 36.88134765900031,
+      "cpu_busy_pct": 2.241571892770111,
+      "loadavg": 0.9384765625,
+      "mem_used_mb": -96.35546875,
+      "stop_s": 2.2030693859996973,
+      "data_tx_per_message": 15.0,
+      "missing_summaries": [],
+      "hello_delivery_ratio": 1.0,
+      "flood_reach_mean": 1.0,
+      "flood_latency_ms_median": 2.0224699983373284,
+      "flood_latency_ms_p95": 2.4043156505285874,
+      "pass": true
+    },
+    {
+      "nodes": 30,
+      "build_s": 63.66755066400219,
+      "cpu_busy_pct": 6.229616795760295,
+      "loadavg": 0.740234375,
+      "mem_used_mb": 683.12890625,
+      "stop_s": 2.754418437001732,
+      "data_tx_per_message": 30.0,
+      "missing_summaries": [],
+      "hello_delivery_ratio": 0.984387878365262,
+      "flood_reach_mean": 1.0,
+      "flood_latency_ms_median": 2.223832500021672,
+      "flood_latency_ms_p95": 3.2897256493015448,
+      "pass": true
+    }
+  ],
+  "max_nodes_ok": 30,
+  "headline": {
+    "max_nodes_ok": 30,
+    "cpus": 12,
+    "by_size": {
+      "5": {
+        "cpu_pct": 3.0,
+        "hello": 1.0,
+        "reach": 1.0,
+        "build_s": 19.67154918899905,
+        "stop_s": 1.753900159998011
+      },
+      "15": {
+        "cpu_pct": 2.0,
+        "hello": 1.0,
+        "reach": 1.0,
+        "build_s": 36.88134765900031,
+        "stop_s": 2.2030693859996973
+      },
+      "30": {
+        "cpu_pct": 6.0,
+        "hello": 0.984387878365262,
+        "reach": 1.0,
+        "build_s": 63.66755066400219,
+        "stop_s": 2.754418437001732
+      }
+    }
+  },
+  "meta": {
+    "exponent": 4.0,
+    "quick": false,
+    "host_python": "3.14.4",
+    "when": "2026-11-09 16:44:44"
+  }
+}
