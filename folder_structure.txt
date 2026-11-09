@@ -1,30 +1,42 @@
-lifeline-project/
-│
-├── docs/                          # Documentation and reports
-│   ├── contracts.md               # C1-C4 contracts (already exists, do not modify)
-│   ├── architecture.md            # System architecture (already exists)
-│   ├── plan.md                    # Development plan (already exists)
-│   └── wp0_spike_results.md       
-│
-├── spike/                         # WP0 dedicated (can be retained or cleaned up later)
-│   ├── spike.py                   # spike tests
-│   └── results/                   # Stores raw JSON data from each run
-│
-├── lifeline/                      # Main project code (future)
-│   ├── envelope.py
-│   ├── crypto.py
-│   ├── transport/                 # Transport interface and implementations
-│   │   ├── base.py
-│   │   ├── udp.py
-│   │   └── memory.py
-│   └── ...
-│
-├── emulation/                     # Emulation-related (future WP9)
-│   ├── scenarios/
-│   └── run.py
-│
-├── analysis/                      # Metrics analysis (future WP10)
-│   └── analyse_loss.py            
-│
-└── tests/
-    └── ...
+Lifeline
+├── anlysis
+├── docs
+│   ├── contracts.md
+│   ├── design_and_architecture.md
+│   ├── development_plan.md
+│   └── WP0 Spike Report Mininet-WiFi Emulator Characterization.md
+├── emulation
+│   └── scenarios
+├── folder_structure.txt
+├── LICENSE
+├── lifeline
+│   ├── crypto.py
+│   ├── envelope.py
+│   ├── info.txt
+│   ├── __init__.py
+│   └── transport
+├── mininet-spike-test
+│   ├── results
+│   │   ├── connectivity.json
+│   │   ├── connectivity.md
+│   │   ├── env.json
+│   │   ├── f1_shim_delay.json
+│   │   ├── f2_relay_edge.json
+│   │   ├── f3_handheld_txpower.json
+│   │   ├── f4_scale_20.json
+│   │   ├── f5_startup_loss.json
+│   │   ├── followup_summary.md
+│   │   ├── inject.json
+│   │   ├── lifecycle.json
+│   │   ├── mobility.json
+│   │   ├── range.json
+│   │   ├── relay.json
+│   │   ├── repeat.json
+│   │   ├── scale.json
+│   │   └── summary.md
+│   ├── spike_followup.py
+│   └── spike.py
+├── README.md
+└── tests
+
+11 directories, 31 files
