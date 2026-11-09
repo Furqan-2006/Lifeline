@@ -420,13 +420,11 @@ def force_cleanup():
     sh('mn -c >/dev/null 2>&1')
 
 
-def isolated(fn, *args):
+def isolated(fn, *args, **kwargs):
     """Run fn(*args) in a forked child process and return its result.
-
-    Mininet-WiFi keeps global state that survives net.stop(): the first network built in a process
-    works, later ones can crash (AttributeError: 'managed' object has no attribute 'wmIface').
-    The parent never builds a network itself, so every fork starts from clean library state.
-    fn must return something picklable (dicts, lists, numbers, strings)."""
+    Times out after `timeout` seconds (default 600) and raises RuntimeError,
+    killing the child. Otherwise unchanged from the original."""
+    timeout = kwargs.pop('timeout', 600.0)
     ctx = mp.get_context('fork')
     q = ctx.Queue()
 
@@ -438,7 +436,9 @@ def isolated(fn, *args):
 
     p = ctx.Process(target=child)
     p.start()
-    while True:
+    deadline = mono() + timeout
+    kind, val = None, None
+    while mono() < deadline:
         try:
             kind, val = q.get(timeout=1.0)
             break
@@ -449,6 +449,12 @@ def isolated(fn, *args):
                 except Exception:
                     kind, val = 'err', 'child process exited with code %s' % p.exitcode
                 break
+    if kind is None:
+        p.terminate()
+        p.join(timeout=5.0)
+        if p.is_alive():
+            p.kill()
+        raise RuntimeError('child did not finish within %ss' % timeout)
     p.join()
     if kind == 'err':
         raise RuntimeError(val)
@@ -516,8 +522,21 @@ class Lab(object):
         time.sleep(5.0 + 0.15 * len(self.stas))              # IBSS join
         self.build_s = mono() - t
 
-    def run_bg(self, sta, args_str, tag):
-        sta.cmd('python3 -u %s %s > %s/%s.out 2>&1 &' % (LB, args_str, TOOLS_DIR, tag))
+    def run_bg(self, sta, args_str, tag, helper=None):
+        """Launch `helper args_str` in the background. Writes helper stdout+stderr
+        to <tag>.out. The caller can wait for <tag>.out to exist and be non-empty
+        to know the helper wrote something; for a definite completion signal, use
+        run_bg_marked() below."""
+        h = helper or LB
+        sta.cmd('python3 -u %s %s > %s/%s.out 2>&1 &' % (h, args_str, TOOLS_DIR, tag))
+
+    def run_bg_marked(self, sta, args_str, tag, helper=None):
+        """Like run_bg, but the launched wrapper writes <tag>.done when the helper
+        exits. This is the reliable completion signal for background senders."""
+        h = helper or LB
+        done = '%s/%s.done' % (TOOLS_DIR, tag)
+        sta.cmd('rm -f %s; (python3 -u %s %s > %s/%s.out 2>&1; echo $? > %s) &'
+                % (done, h, args_str, TOOLS_DIR, tag, done))
 
     def listen(self, name, port, tag, loss=0.0, delay_ms=0.0, seed=0, duration=0):
         out = '%s/%s.rx' % (TOOLS_DIR, tag)
@@ -545,7 +564,7 @@ class Lab(object):
             if os.path.exists(log):
                 os.remove(log)
         if background:
-            self.run_bg(self.stas[name], args, 'send_' + name)
+            self.run_bg_marked(self.stas[name], args, 'send_' + name)
         else:
             self.stas[name].cmd('python3 -u %s %s' % (LB, args))
 

@@ -1,0 +1,69 @@
+{
+  "verdict": "PASS",
+  "configured_delay_ms": 20.0,
+  "rows": [
+    {
+      "rate_fps": 50.0,
+      "n_senders": 5,
+      "frames_per_sender": 1000,
+      "configured_ms": 20.0,
+      "shim_median_ms": 20.10599999994156,
+      "shim_p95_ms": 20.22399999989375,
+      "e2e_median_ms": 29.510999999729393,
+      "e2e_p95_ms": 34.58500000033382,
+      "received_fraction": 1.0,
+      "shim_ok": true
+    },
+    {
+      "rate_fps": 20.0,
+      "n_senders": 5,
+      "frames_per_sender": 1000,
+      "configured_ms": 20.0,
+      "shim_median_ms": 20.183999999972002,
+      "shim_p95_ms": 20.28699999982564,
+      "e2e_median_ms": 28.827000000092085,
+      "e2e_p95_ms": 31.226000000060594,
+      "received_fraction": 1.0,
+      "shim_ok": true
+    },
+    {
+      "rate_fps": 333.0,
+      "n_senders": 5,
+      "frames_per_sender": 1000,
+      "configured_ms": 20.0,
+      "shim_median_ms": 20.117999999911262,
+      "shim_p95_ms": 20.186999999646105,
+      "e2e_median_ms": 1515.3514999999516,
+      "e2e_p95_ms": 2419.327550000321,
+      "received_fraction": 1.0,
+      "shim_ok": true
+    }
+  ],
+  "headline": {
+    "shim_median_by_rate": {
+      "50.0": 20.10599999994156,
+      "20.0": 20.183999999972002,
+      "333.0": 20.117999999911262
+    },
+    "e2e_median_by_rate": {
+      "50.0": 29.510999999729393,
+      "20.0": 28.827000000092085,
+      "333.0": 1515.3514999999516
+    },
+    "received_by_rate": {
+      "50.0": 1.0,
+      "20.0": 1.0,
+      "333.0": 1.0
+    },
+    "realistic_ok": true,
+    "control_reproduces_414ms": false,
+    "control_run": true,
+    "decision": "shim_delay_usable_at_realistic_rates"
+  },
+  "meta": {
+    "exponent": 4.0,
+    "quick": false,
+    "host_python": "3.14.4",
+    "when": "2026-11-09 22:39:43"
+  }
+}
