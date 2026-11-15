@@ -60,6 +60,10 @@ class ToyRelay:
             )
             self._node.transmit(_Signed(fwd, env.signature))
 
+    def mark_origin(self, env: ts.Envelope) -> None:
+        """Record our own outgoing message as seen, so its echo is a DUPLICATE."""
+        self._seen.add((env.sender, env.sequence))
+
 class _Signed:
     """Wraps an envelope so the codec emits the original signature."""
 

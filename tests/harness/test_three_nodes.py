@@ -90,19 +90,26 @@ def events(text: str) -> list[dict]:
 def by_event(text: str, name: str) -> list[dict]:
     return [e for e in events(text) if e["event"] == name]
 
+# Expected traffic (corrected):
+#   n01 TX=1, RX=1 (own echo from n02 -> DROP DUPLICATE), DELIVER=0
+#   n02 TX=1, RX=2 (from n01, and from n03 -> DROP DUPLICATE), DELIVER=1
+#   n03 TX=1, RX=1, DELIVER=1 with TTL 2
 
 async def test_three_node_line_delivery_and_counts():
     logs, relays, ids = await run_sos()
-    # Expected counts, derived in the module docstring.
     assert len(by_event(logs["n01"], "TX")) == 1
-    assert len(by_event(logs["n02"], "TX")) == 1
-    assert len(by_event(logs["n03"], "TX")) == 0
     assert len(by_event(logs["n01"], "RX")) == 1
-    assert len(by_event(logs["n02"], "RX")) == 1
-    assert len(by_event(logs["n03"], "RX")) == 1
-    assert len(by_event(logs["n01"], "DROP")) == 1
-    assert by_event(logs["n01"], "DROP")[0]["reason"] == "DUPLICATE"
+    assert len(by_event(logs["n01"], "DELIVER")) == 0
+    assert [e["reason"] for e in by_event(logs["n01"], "DROP")] == ["DUPLICATE"]
 
+    assert len(by_event(logs["n02"], "TX")) == 1
+    assert len(by_event(logs["n02"], "RX")) == 2
+    assert len(by_event(logs["n02"], "DELIVER")) == 1
+    assert [e["reason"] for e in by_event(logs["n02"], "DROP")] == ["DUPLICATE"]
+
+    assert len(by_event(logs["n03"], "TX")) == 1
+    assert len(by_event(logs["n03"], "RX")) == 1
+    assert len(by_event(logs["n03"], "DELIVER")) == 1
 
 async def test_n03_delivers_same_message_with_reduced_ttl_and_valid_signature():
     logs, relays, ids = await run_sos()
@@ -112,7 +119,7 @@ async def test_n03_delivers_same_message_with_reduced_ttl_and_valid_signature():
     assert env.sender == ids["n01"].public_key
     assert env.sequence == 0
     assert env.payload == b"\x00" * 9
-    assert env.ttl == 1  # sent TTL 3, relayed by n02 as 2, decremented on forward
+    assert env.ttl == 2  # sent at 3, decremented once by n02
 
 
 async def test_rx_precedes_deliver_at_relays():
