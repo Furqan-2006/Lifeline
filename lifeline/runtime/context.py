@@ -11,10 +11,10 @@ from collections.abc import Awaitable, Callable
 from dataclasses import dataclass
 from typing import Any, Protocol
 
-from lifeline.clock import Clock
-from lifeline.config import NodeConfig
-from lifeline.eventlog import EventLogger
-from lifeline.runtime.rng import Rng
+from clock import Clock
+from config import NodeConfig
+from eventlog import EventLogger
+from rng import Rng
 
 
 class DecodeError(Exception):

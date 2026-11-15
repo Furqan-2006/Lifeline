@@ -32,10 +32,10 @@ from collections.abc import Awaitable, Callable
 from pathlib import Path
 from typing import Any
 
-from lifeline.clock import Clock
-from lifeline.config import NodeConfig
-from lifeline.context import Codec, DecodeError, Envelope, EnvelopeHandler, Identity, NodeContext
-from lifeline.eventlog import EventLogger
+from clock import Clock
+from config import NodeConfig
+from context import Codec, DecodeError, Envelope, EnvelopeHandler, Identity, NodeContext
+from eventlog import EventLogger
 from lifeline.runtime.rng import Rng
 from lifeline.transport.base import Transport, TransportClosed
 
@@ -214,7 +214,9 @@ class Node:
 
     def spawn(self, coro: Awaitable[Any], name: str) -> asyncio.Task:
         """Start an owned task. Cancelled on stop(); exceptions are reported."""
-        task = asyncio.get_running_loop().create_task(coro, name=f"{self.name}:{name}")
+        async def run() -> Any:
+            return await coro
+        task = asyncio.get_running_loop().create_task(run(), name=f"{self.name}:{name}")
         self._receive_task = self.spawn(self._receive_loop(), "receive")
         task.add_done_callback(self._task_done)
         return task

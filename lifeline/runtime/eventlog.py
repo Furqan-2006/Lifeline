@@ -24,7 +24,7 @@ import threading
 from pathlib import Path
 from typing import Any, Protocol
 
-from lifeline.clock import Clock
+from clock import Clock
 
 _COMMON_KEYS = ("t", "node", "event")
 _TIME_DECIMALS = 6

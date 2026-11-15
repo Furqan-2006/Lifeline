@@ -83,7 +83,7 @@ def seal(recipient_ed25519_pub_bytes: bytes, plaintext: bytes, aad: bytes) -> tu
     return ephemeral_pub_bytes, nonce, ciphertext
 
 def open_msg(my_ed25519_priv: ed25519.Ed25519PrivateKey, ephemeral_pub_bytes: bytes, 
-             nonce: bytes, ciphertext: bytes, aad: bytes) -> bytes:
+             nonce: bytes, ciphertext: bytes, aad: bytes) -> bytes | None:
     """
     Decrypts a TEXT payload.
     Returns the plaintext bytes, or None if decryption/authentication fails.

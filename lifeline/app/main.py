@@ -16,9 +16,9 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from lifeline.clock import SystemClock
-from lifeline.config import ConfigError, NodeConfig, load_node_config
-from lifeline.eventlog import EventLogger
+from runtime.clock import SystemClock
+from runtime.config import ConfigError, NodeConfig, load_node_config
+from runtime.eventlog import EventLogger
 from lifeline.runtime.node import Node
 from lifeline.runtime.rng import Rng
 from lifeline.transport.udp import TransportBindError, UdpTransport
