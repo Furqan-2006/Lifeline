@@ -116,7 +116,7 @@ class Node:
         self._started = True
         self._stopped_event = asyncio.Event()
         self._receive_task = asyncio.get_running_loop().create_task(self._receive_loop())
-        self._tasks.add(self._receive_task)
+        self._receive_task = self.spawn(self._receive_loop(), "receive")
         self._receive_task.add_done_callback(self._tasks.discard)
 
     async def stop(self) -> None:
@@ -215,7 +215,7 @@ class Node:
     def spawn(self, coro: Awaitable[Any], name: str) -> asyncio.Task:
         """Start an owned task. Cancelled on stop(); exceptions are reported."""
         task = asyncio.get_running_loop().create_task(coro, name=f"{self.name}:{name}")
-        self._tasks.add(task)
+        self._receive_task = self.spawn(self._receive_loop(), "receive")
         task.add_done_callback(self._task_done)
         return task
 

@@ -56,14 +56,10 @@ def node_id_of(public_key: bytes) -> bytes:
 
 
 class Identity:
-    """TEMP stand-in for C2.4 identity."""
-
-    def __init__(self, private_key: Ed25519PrivateKey | None = None) -> None:
+    def __init__(self, private_key: Ed25519PrivateKey | None = None, seed: bytes | None = None) -> None:
+        if private_key is None and seed is not None:
+            private_key = Ed25519PrivateKey.from_private_bytes(seed)
         self._private = private_key or Ed25519PrivateKey.generate()
-        self.public_key = self._private.public_key().public_bytes(
-            serialization.Encoding.Raw, serialization.PublicFormat.Raw
-        )
-        self.node_id = node_id_of(self.public_key)
 
     def sign(self, data: bytes) -> bytes:
         return self._private.sign(data)
@@ -109,6 +105,8 @@ def decode(frame: bytes) -> Envelope:
     if ttl == 0 and type_name != "HELLO":
         raise DecodeError("TTL 0 on non-HELLO")
     payload_len = frame[64]
+    if type_name == "HELLO" and ttl != 1:
+        raise DecodeError("HELLO TTL must be 1")
     if payload_len > 160:
         raise DecodeError("payload too long")
     if len(frame) != HEADER_LEN + payload_len + SIG_LEN:

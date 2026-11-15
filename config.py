@@ -81,6 +81,7 @@ class NodeConfig:
     sos_repeat_interval_s: float = 15
 
     def __post_init__(self) -> None:
+        object.__setattr__(self, "jitter_ms", _as_jitter(self.jitter_ms, "jitter_ms"))
         _validate_node(self)
 
     # --- derived variant flags (C4 4.1) -------------------------------------
