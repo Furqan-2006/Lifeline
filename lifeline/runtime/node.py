@@ -36,7 +36,7 @@ from lifeline.clock import Clock
 from lifeline.config import NodeConfig
 from lifeline.context import Codec, DecodeError, Envelope, EnvelopeHandler, Identity, NodeContext
 from lifeline.eventlog import EventLogger
-from lifeline.rng import Rng
+from lifeline.runtime.rng import Rng
 from lifeline.transport.base import Transport, TransportClosed
 
 _log = logging.getLogger("lifeline.node")

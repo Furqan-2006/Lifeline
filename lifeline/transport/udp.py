@@ -21,7 +21,7 @@ from collections import deque
 from collections.abc import Sequence
 
 from lifeline.clock import Clock
-from lifeline.rng import Rng
+from lifeline.runtime.rng import Rng
 from lifeline.transport.base import Transport, TransportClosed
 
 COUNTER_KEYS = (

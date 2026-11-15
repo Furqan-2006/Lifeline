@@ -14,7 +14,7 @@ from typing import Any, Protocol
 from lifeline.clock import Clock
 from lifeline.config import NodeConfig
 from lifeline.eventlog import EventLogger
-from lifeline.rng import Rng
+from lifeline.runtime.rng import Rng
 
 
 class DecodeError(Exception):

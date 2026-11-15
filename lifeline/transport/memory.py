@@ -21,7 +21,7 @@ import collections
 from dataclasses import dataclass, field
 
 from lifeline.clock import Clock
-from lifeline.rng import Rng
+from lifeline.runtime.rng import Rng
 from lifeline.transport.base import Transport, TransportClosed
 
 # Proposed default for contract question 3: the loss stream for a directed

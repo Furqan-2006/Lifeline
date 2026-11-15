@@ -1,9 +1,9 @@
 Lifeline
-├── anlysis
 ├── docs
 │   ├── contracts.md
 │   ├── design_and_architecture.md
 │   ├── development_plan.md
+│   ├── runtime.md
 │   └── WP0 Spike Report Mininet-WiFi Emulator Characterization.md
 ├── emulation
 │   └── scenarios
@@ -14,7 +14,7 @@ Lifeline
 │   ├── envelope.py
 │   ├── info.txt
 │   ├── __init__.py
-│   └── transport
+│   └── transport/
 ├── mininet-spike-test
 │   ├── results
 │   │   ├── connectivity.json

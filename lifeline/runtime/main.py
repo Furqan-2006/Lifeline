@@ -19,8 +19,8 @@ from typing import Any
 from lifeline.clock import SystemClock
 from lifeline.config import ConfigError, NodeConfig, load_node_config
 from lifeline.eventlog import EventLogger
-from lifeline.node import Node
-from lifeline.rng import Rng
+from lifeline.runtime.node import Node
+from lifeline.runtime.rng import Rng
 from lifeline.transport.udp import TransportBindError, UdpTransport
 
 EXIT_OK = 0
