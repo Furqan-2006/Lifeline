@@ -1,23 +1,31 @@
+"""Envelope codec: the wire format of contract C1 and the codec calls of C2.3.
+
+Field names are the WP2 names (msg_id, msg_type, sender_pubkey, seq_num).
+Additions over the first version, none of which changes an existing call:
+compute_msg_id (C1.1), MSG_TYPE_NAMES (for the C3 log), signed_bytes also
+accepting an Envelope (C2.3), and a payload-length check in encode.
+"""
+
+from __future__ import annotations
+
+import hashlib
 import struct
 from dataclasses import dataclass
 from typing import Optional
 
-# Pre-compiled struct layouts for O(1) CPU serialization
-# >  : Big-endian
-# B  : unsigned char (1 byte)
-# 8s : char[] (8 bytes)
-# I  : unsigned int (4 bytes)
+# > big-endian, B 1 byte, 8s 8 bytes, I 4-byte unsigned, 32s / 16s byte strings
 BASE_HEADER_FORMAT = struct.Struct(">B B B B 8s I 32s 16s B")
 TEXT_EXT_FORMAT = struct.Struct(">32s 12s")
 
-BASE_HEADER_LEN = BASE_HEADER_FORMAT.size  # Should be 65
-TEXT_EXT_LEN = TEXT_EXT_FORMAT.size        # Should be 44
+BASE_HEADER_LEN = BASE_HEADER_FORMAT.size  # 65
+TEXT_EXT_LEN = TEXT_EXT_FORMAT.size        # 44
 SIGNATURE_LEN = 64
 MAX_PAYLOAD_LEN = 160
+BROADCAST = bytes(16)
 
-# Protocol Constants
 LIFELINE_VERSION = 1
 SIGNED_BYTES_PREFIX = b"LIFELINE-v1"
+
 
 class MsgType:
     HELLO = 1
@@ -27,9 +35,14 @@ class MsgType:
     KEY_REQUEST = 5
     KEY_REPLY = 6
 
+
+#: Type names as written in the C3 log, for example 1 -> "HELLO".
+MSG_TYPE_NAMES = {v: k for k, v in vars(MsgType).items() if k.isupper()}
+
+
 class DecodeError(Exception):
-    """Raised on any validation failure. Handled by the flood engine (dropped)."""
-    pass
+    """Raised on any validation failure. The runtime drops the frame and logs MALFORMED."""
+
 
 @dataclass(slots=True)
 class Envelope:
@@ -42,136 +55,93 @@ class Envelope:
     sender_pubkey: bytes      # 32 bytes
     recipient_node_id: bytes  # 16 bytes
     payload_len: int
-    
-    # Optional extensions for TEXT (Type 2)
-    ephemeral_pubkey: Optional[bytes] = None # 32 bytes
-    nonce: Optional[bytes] = None            # 12 bytes
-    
+
+    # TEXT only (type 2)
+    ephemeral_pubkey: Optional[bytes] = None  # 32 bytes
+    nonce: Optional[bytes] = None             # 12 bytes
+
     payload: bytes = b""      # up to 160 bytes
     signature: bytes = b""    # 64 bytes
 
-def signed_bytes(raw_frame: bytes) -> bytes:
+
+def compute_msg_id(sender_pubkey: bytes, seq_num: int) -> bytes:
+    """C1.1: first 8 bytes of SHA-256 of (sender public key, sequence as 4 bytes)."""
+    return hashlib.sha256(sender_pubkey + struct.pack(">I", seq_num)).digest()[:8]
+
+
+def _pack(env: Envelope, signature: bytes) -> bytes:
+    if len(env.payload) != env.payload_len or env.payload_len > MAX_PAYLOAD_LEN:
+        raise ValueError("payload_len must equal len(payload) and be at most 160")
+    if len(signature) != SIGNATURE_LEN:
+        raise ValueError("signature must be 64 bytes")
+    base = BASE_HEADER_FORMAT.pack(
+        env.version, env.msg_type, env.priority, env.ttl, env.msg_id, env.seq_num,
+        env.sender_pubkey, env.recipient_node_id, env.payload_len,
+    )
+    ext = b""
+    if env.msg_type == MsgType.TEXT:
+        if not env.ephemeral_pubkey or not env.nonce:
+            raise ValueError("TEXT messages must include ephemeral_pubkey and nonce")
+        ext = TEXT_EXT_FORMAT.pack(env.ephemeral_pubkey, env.nonce)
+    return base + ext + env.payload + signature
+
+
+def encode(env: Envelope) -> bytes:
+    """Serialize an envelope to a frame (C1.1). Raises ValueError if it is malformed."""
+    return _pack(env, env.signature)
+
+
+def signed_bytes(source: "Envelope | bytes") -> bytes:
+    """The signed bytes (C1.5): prefix, bytes 0 to 2, then bytes 4 up to the signature.
+
+    Takes a raw frame (as before) or an Envelope. For an Envelope the signature
+    field is ignored, so it works before signing and after.
     """
-    This function returns the signed bytes which WP3 (Crypto) verifies the Ed25519 signature and for that it must know which
-    bytes were signed.
-    Contract 1.5: The signed bytes are the ASCII prefix 'LIFELINE-v1', 
-    then bytes 0 to 2 of the frame, then bytes 4 up to the start of the signature.
-    (TTL at byte 3 and the 64-byte signature are excluded).
-    """
-    if len(raw_frame) < BASE_HEADER_LEN + SIGNATURE_LEN:
-        raise DecodeError("Frame too small to contain signature.")
-    
-    # C-style memory slicing. O(1) byte extraction.
-    prefix = SIGNED_BYTES_PREFIX
-    bytes_0_to_2 = raw_frame[0:3]
-    bytes_4_to_sig = raw_frame[4:-SIGNATURE_LEN]
-    
-    return prefix + bytes_0_to_2 + bytes_4_to_sig
+    raw = _pack(source, bytes(SIGNATURE_LEN)) if isinstance(source, Envelope) else source
+    if len(raw) < BASE_HEADER_LEN + SIGNATURE_LEN:
+        raise DecodeError("frame too small to contain a signature")
+    return SIGNED_BYTES_PREFIX + raw[0:3] + raw[4:-SIGNATURE_LEN]
+
 
 def decode(raw_frame: bytes) -> Envelope:
-    """
-    Takes untrusted bytes from n/w layer, validates them and lets valid msgs to application and incase of validation failure
-    throws a decode error to signal 'Flood Engine' which simply logs & ignores it.
-    
-    This function decodes raw bytes into an Envelope.
-    Ensures enforcement of Contract 1.6 validation rules.
-    """
-    # Guard 1: Absolute minimum size (65 header + 0 payload + 64 sig)
+    """Validate untrusted bytes (C1.6) and return an Envelope, or raise DecodeError."""
     if len(raw_frame) < BASE_HEADER_LEN + SIGNATURE_LEN:
-        raise DecodeError("Frame smaller than absolute minimum size (129 bytes).")
+        raise DecodeError("frame smaller than the absolute minimum (129 bytes)")
 
-    # Unpack the fixed base header
-    (version, msg_type, priority, ttl, msg_id, seq_num, 
+    (version, msg_type, priority, ttl, msg_id, seq_num,
      sender_pubkey, recipient, payload_len) = BASE_HEADER_FORMAT.unpack_from(raw_frame, 0)
-    
-    # Guard 2: Version
+
     if version != LIFELINE_VERSION:
-        raise DecodeError(f"Unsupported protocol version: {version}")
-        
-    # Guard 3: Message Type Valid Range
+        raise DecodeError(f"unsupported protocol version: {version}")
     if not (MsgType.HELLO <= msg_type <= MsgType.KEY_REPLY):
-        raise DecodeError(f"Unknown message type: {msg_type}")
-        
-    # Guard 4: Payload limits
+        raise DecodeError(f"unknown message type: {msg_type}")
     if payload_len > MAX_PAYLOAD_LEN:
-        raise DecodeError(f"Payload length {payload_len} exceeds maximum 160.")
-        
-    # Guard 5: Frame Length match
+        raise DecodeError(f"payload length {payload_len} exceeds 160")
+
     expected_len = BASE_HEADER_LEN + payload_len + SIGNATURE_LEN
     if msg_type == MsgType.TEXT:
         expected_len += TEXT_EXT_LEN
-        
     if len(raw_frame) != expected_len:
-        raise DecodeError(f"Frame length {len(raw_frame)} != expected {expected_len}.")
+        raise DecodeError(f"frame length {len(raw_frame)} != expected {expected_len}")
 
-    # Guard 6: TTL constraints
     if msg_type == MsgType.HELLO and ttl != 1:
-        raise DecodeError("HELLO message must have TTL of exactly 1.")
+        raise DecodeError("HELLO must have TTL 1")
     if msg_type != MsgType.HELLO and ttl == 0:
-        raise DecodeError("Non-HELLO message cannot have TTL of 0.")
-        
-    # Guard 7: TEXT specific constraints
-    if msg_type == MsgType.TEXT and recipient == (b'\x00' * 16):
-        raise DecodeError("TEXT message cannot have a broadcast recipient NodeID.")
+        raise DecodeError("non-HELLO message cannot have TTL 0")
+    if msg_type == MsgType.TEXT and recipient == BROADCAST:
+        raise DecodeError("TEXT cannot have a broadcast recipient")
 
-    # --- Validation Passed! Now we slice the bytes ---
-    
     ephemeral_pubkey = None
     nonce = None
     payload_start = BASE_HEADER_LEN
-
-    # If it's a TEXT message, unpack the 44-byte extension
     if msg_type == MsgType.TEXT:
         ephemeral_pubkey, nonce = TEXT_EXT_FORMAT.unpack_from(raw_frame, payload_start)
         payload_start += TEXT_EXT_LEN
 
-    # Slice the payload explicitly based on known offsets
-    payload = raw_frame[payload_start : payload_start + payload_len]
-    
-    # Slice the signature (last 64 bytes)
-    signature = raw_frame[-SIGNATURE_LEN:]
-
     return Envelope(
-        version=version,
-        msg_type=msg_type,
-        priority=priority,
-        ttl=ttl,
-        msg_id=msg_id,
-        seq_num=seq_num,
-        sender_pubkey=sender_pubkey,
-        recipient_node_id=recipient,
-        payload_len=payload_len,
-        ephemeral_pubkey=ephemeral_pubkey,
-        nonce=nonce,
-        payload=payload,
-        signature=signature
+        version=version, msg_type=msg_type, priority=priority, ttl=ttl, msg_id=msg_id,
+        seq_num=seq_num, sender_pubkey=sender_pubkey, recipient_node_id=recipient,
+        payload_len=payload_len, ephemeral_pubkey=ephemeral_pubkey, nonce=nonce,
+        payload=bytes(raw_frame[payload_start:payload_start + payload_len]),
+        signature=bytes(raw_frame[-SIGNATURE_LEN:]),
     )
-
-def encode(env: Envelope) -> bytes:
-    """
-    Takes an Envelope object we created in memory, and serialize it to raw network bytes so WP1 (Flood Engine) can send it.
-    Serializes an Envelope object into raw network bytes.
-    Matches Contract 1.1 Layout.
-    """
-    # 1. Pack the fixed 65-byte base header
-    base_header = BASE_HEADER_FORMAT.pack(
-        env.version,
-        env.msg_type,
-        env.priority,
-        env.ttl,
-        env.msg_id,
-        env.seq_num,
-        env.sender_pubkey,
-        env.recipient_node_id,
-        env.payload_len
-    )
-    
-    # 2. Pack the 44-byte extension ONLY if it's a TEXT message
-    ext_bytes = b""
-    if env.msg_type == MsgType.TEXT:
-        if not env.ephemeral_pubkey or not env.nonce:
-            raise ValueError("TEXT messages must include ephemeral_pubkey and nonce.")
-        ext_bytes = TEXT_EXT_FORMAT.pack(env.ephemeral_pubkey, env.nonce)
-        
-    # 3. Concatenate all parts (Header + [Extension] + Payload + Signature)
-    return base_header + ext_bytes + env.payload + env.signature

@@ -28,14 +28,16 @@ import json
 import logging
 import os
 import tempfile
-from collections.abc import Awaitable, Callable
+from collections.abc import Awaitable, Callable, Coroutine
 from pathlib import Path
-from typing import Any
+from typing import Any, TypedDict, cast
 
-from clock import Clock
-from config import NodeConfig
-from context import Codec, DecodeError, Envelope, EnvelopeHandler, Identity, NodeContext
-from eventlog import EventLogger
+from lifeline.protocol.crypto import node_id_of
+from lifeline.protocol.envelope import MSG_TYPE_NAMES
+from lifeline.runtime.clock import Clock
+from lifeline.runtime.config import NodeConfig
+from lifeline.runtime.context import Codec, DecodeError, Envelope, EnvelopeHandler, Identity, NodeContext
+from lifeline.runtime.eventlog import EventLogger
 from lifeline.runtime.rng import Rng
 from lifeline.transport.base import Transport, TransportClosed
 
@@ -50,6 +52,22 @@ def _seq_path(state_dir: Path, name: str) -> Path:
     """Contract question 5: state file location. Isolated here."""
     return state_dir / f"seq_{name}.json"
 
+class _LogFields(TypedDict):
+    mid: bytes
+    type: str
+    sender: bytes
+    ttl: int
+    size: int
+
+
+def _log_fields(envelope: Envelope, size: int) -> _LogFields:
+    return cast(_LogFields, dict(
+        mid=envelope.msg_id,
+        type=MSG_TYPE_NAMES.get(envelope.msg_type, str(envelope.msg_type)),
+        sender=node_id_of(envelope.sender_pubkey),
+        ttl=envelope.ttl,
+        size=size,
+    ))
 
 class Node:
     """One Lifeline node: owns its transport, timers and handlers."""
@@ -115,9 +133,7 @@ class Node:
             return
         self._started = True
         self._stopped_event = asyncio.Event()
-        self._receive_task = asyncio.get_running_loop().create_task(self._receive_loop())
         self._receive_task = self.spawn(self._receive_loop(), "receive")
-        self._receive_task.add_done_callback(self._tasks.discard)
 
     async def stop(self) -> None:
         if self._stopped:
@@ -161,7 +177,10 @@ class Node:
                 _log.exception("%s: transport recv failed", self.name)
                 await self._clock.sleep(0)
                 continue
-            self._on_frame(frame, tx_label)
+            try:
+                self._on_frame(frame, tx_label)
+            except Exception:
+                _log.exception("%s: frame handling failed", self.name)
 
     def _on_frame(self, frame: bytes, tx_label: str) -> None:
         try:
@@ -174,14 +193,7 @@ class Node:
             self._log.drop(reason="MALFORMED")
             return
 
-        self._log.rx(
-            mid=envelope.mid,
-            type=envelope.type,
-            sender=envelope.sender,
-            ttl=envelope.ttl,
-            size=envelope.size,
-            tx=tx_label,
-        )
+        self._log.rx(**_log_fields(envelope, len(frame)), tx=tx_label)
         for handler in list(self._handlers):
             try:
                 handler(envelope, tx_label)
@@ -202,22 +214,14 @@ class Node:
         except Exception:
             _log.exception("%s: transport send failed", self.name)
             return
-        self._log.tx(
-            mid=envelope.mid,
-            type=envelope.type,
-            sender=envelope.sender,
-            ttl=envelope.ttl,
-            size=envelope.size,
-        )
+        self._log.tx(**_log_fields(envelope, len(frame)))
 
     # --- timers -------------------------------------------------------------------
 
-    def spawn(self, coro: Awaitable[Any], name: str) -> asyncio.Task:
+    def spawn(self, coro: Coroutine[Any, Any, Any], name: str) -> asyncio.Task:
         """Start an owned task. Cancelled on stop(); exceptions are reported."""
-        async def run() -> Any:
-            return await coro
-        task = asyncio.get_running_loop().create_task(run(), name=f"{self.name}:{name}")
-        self._receive_task = self.spawn(self._receive_loop(), "receive")
+        task = asyncio.get_running_loop().create_task(coro, name=f"{self.name}:{name}")
+        self._tasks.add(task)
         task.add_done_callback(self._task_done)
         return task
 

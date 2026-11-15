@@ -20,7 +20,7 @@ import asyncio
 import collections
 from dataclasses import dataclass, field
 
-from lifeline.clock import Clock
+from lifeline.runtime.clock import Clock
 from lifeline.runtime.rng import Rng
 from lifeline.transport.base import Transport, TransportClosed
 

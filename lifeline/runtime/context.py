@@ -1,40 +1,20 @@
 """Shared context and the Protocols the runtime depends on.
 
-Nothing here imports M2's or M1's code. The runtime receives a codec and an
-identity by injection, so the same node code runs with the real envelope
-module, with a TEMP stand-in, or with a test double.
+The runtime adapts to the protocol package, not the other way round: the
+envelope type and DecodeError come from lifeline.protocol.envelope.
 """
 
 from __future__ import annotations
 
-from collections.abc import Awaitable, Callable
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Any, Protocol
+from typing import Protocol
 
-from clock import Clock
-from config import NodeConfig
-from eventlog import EventLogger
-from rng import Rng
-
-
-class DecodeError(Exception):
-    """Raised by ``Codec.decode`` on any validation failure (C2.3)."""
-
-
-class Envelope(Protocol):
-    """The attributes the runtime reads from a decoded or outgoing envelope.
-
-    Contract question 1: M2's envelope object must expose these names.
-    ``type`` is the C2.3 type name (for example "TEXT"); ``mid`` is the
-    8-byte Message ID; ``sender`` is the 32-byte public key; ``size`` is the
-    frame length in bytes (contract question 2).
-    """
-
-    mid: bytes
-    type: str
-    sender: bytes
-    ttl: int
-    size: int
+from lifeline.protocol.envelope import DecodeError, Envelope
+from lifeline.runtime.clock import Clock
+from lifeline.runtime.config import NodeConfig
+from lifeline.runtime.eventlog import EventLogger
+from lifeline.runtime.rng import Rng
 
 
 class Codec(Protocol):
@@ -69,15 +49,4 @@ class NodeContext:
     egress: Egress
 
 
-__all__ = [
-    "Codec",
-    "DecodeError",
-    "Egress",
-    "Envelope",
-    "EnvelopeHandler",
-    "Identity",
-    "NodeContext",
-]
-
-_ = Any  # keeps the import used for type checkers in some editors
-_ = Awaitable
+__all__ = ["Codec", "DecodeError", "Egress", "Envelope", "EnvelopeHandler", "Identity", "NodeContext"]

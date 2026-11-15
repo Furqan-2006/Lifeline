@@ -19,8 +19,9 @@ import asyncio
 import socket
 from collections import deque
 from collections.abc import Sequence
+from typing import cast
 
-from lifeline.clock import Clock
+from lifeline.runtime.clock import Clock
 from lifeline.runtime.rng import Rng
 from lifeline.transport.base import Transport, TransportClosed
 
@@ -134,7 +135,7 @@ class UdpTransport(Transport):
         if len(frame) > self._max_frame:
             c["oversized_tx"] += 1
             return
-        if self._udp.get_write_buffer_size() > _WRITE_BUFFER_LIMIT:
+        if cast(asyncio.WriteTransport, self._udp).get_write_buffer_size() > _WRITE_BUFFER_LIMIT:
             c["send_backpressure"] += 1
             return
         data = bytes(frame)
