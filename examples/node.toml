@@ -1,0 +1,16 @@
+# Node parameters (C4 section 4.1). Every key is optional; defaults apply.
+variant = "relay"
+hello_interval_s = 2.0
+neighbor_timeout_missed = 3
+default_ttl = 16
+jitter_ms = [10, 80]
+counter_suppression_k = 2
+seq_window = 256
+buffer_capacity = 200
+retention_s = 1800
+reoffer_initial_s = 5
+reoffer_factor = 2
+reoffer_max_attempts = 5
+rate_limit_tx_fps = 20
+rate_limit_sos_origin_s = 10
+sos_repeat_interval_s = 15
