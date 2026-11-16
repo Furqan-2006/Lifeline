@@ -29,7 +29,7 @@ from lifeline.runtime.context import Envelope
 from lifeline.runtime.node import Node
 
 
-_log = logging.getLogger("lifeline.neighbor_discovery.neighbors")
+_log = logging.getLogger("lifeline.neighbors")
 
 NODE_CLASS_HANDHELD = 0
 NODE_CLASS_RELAY = 1
