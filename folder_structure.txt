@@ -1,0 +1,30 @@
+lifeline-project/
+│
+├── docs/                          # Documentation and reports
+│   ├── contracts.md               # C1-C4 contracts (already exists, do not modify)
+│   ├── architecture.md            # System architecture (already exists)
+│   ├── plan.md                    # Development plan (already exists)
+│   └── wp0_spike_results.md       
+│
+├── spike/                         # WP0 dedicated (can be retained or cleaned up later)
+│   ├── spike.py                   # spike tests
+│   └── results/                   # Stores raw JSON data from each run
+│
+├── lifeline/                      # Main project code (future)
+│   ├── envelope.py
+│   ├── crypto.py
+│   ├── transport/                 # Transport interface and implementations
+│   │   ├── base.py
+│   │   ├── udp.py
+│   │   └── memory.py
+│   └── ...
+│
+├── emulation/                     # Emulation-related (future WP9)
+│   ├── scenarios/
+│   └── run.py
+│
+├── analysis/                      # Metrics analysis (future WP10)
+│   └── analyse_loss.py            
+│
+└── tests/
+    └── ...
