@@ -16,6 +16,40 @@ from cryptography.exceptions import InvalidTag
 # In WP3, an "identity" is just a private key object that can sign things.
 # The public key is derived from it.
 
+# ========================================================== #
+# Curve25519 prime: 2^255 - 19
+_CURVE25519_P = (1 << 255) - 19
+
+
+def _ed25519_pub_to_x25519(ed_pub_bytes: bytes) -> x25519.X25519PublicKey:
+    """Converts a 32-byte Ed25519 public key (Edwards y) to X25519 (Montgomery u)."""
+    if len(ed_pub_bytes) != 32:
+        raise ValueError("Ed25519 public key must be 32 bytes")
+    y = int.from_bytes(ed_pub_bytes, "little")
+    y &= (1 << 255) - 1  # Clear the sign bit (bit 255)
+    denom = (1 - y) % _CURVE25519_P
+    if denom == 0:
+        raise ValueError("Invalid Ed25519 public key")
+    # Modular inverse via Fermat's Little Theorem: a^-1 = a^(p-2) mod p
+    u = ((1 + y) * pow(denom, _CURVE25519_P - 2, _CURVE25519_P)) % _CURVE25519_P
+    return x25519.X25519PublicKey.from_public_bytes(u.to_bytes(32, "little"))
+
+
+def _ed25519_priv_to_x25519(ed_priv: ed25519.Ed25519PrivateKey) -> x25519.X25519PrivateKey:
+    """Converts an Ed25519 private key seed to its corresponding X25519 private scalar."""
+    seed = ed_priv.private_bytes(
+        encoding=serialization.Encoding.Raw,
+        format=serialization.PrivateFormat.Raw,
+        encryption_algorithm=serialization.NoEncryption(),
+    )
+    h = bytearray(hashlib.sha512(seed).digest()[:32])
+    # Standard Curve25519 bit-clamping
+    h[0] &= 248
+    h[31] &= 127
+    h[31] |= 64
+    return x25519.X25519PrivateKey.from_private_bytes(bytes(h))
+# ========================================================== #
+
 def generate_identity() -> ed25519.Ed25519PrivateKey:
     """Generates a new Ed25519 key pair."""
     return ed25519.Ed25519PrivateKey.generate()
@@ -33,11 +67,11 @@ def sign(private_key: ed25519.Ed25519PrivateKey, data: bytes) -> bytes:
 
 def verify(public_key_bytes: bytes, data: bytes, signature: bytes) -> bool:
     """Verifies the signature. Returns True if valid, False otherwise."""
-    pub_key = ed25519.Ed25519PublicKey.from_public_bytes(public_key_bytes)
     try:
+        pub_key = ed25519.Ed25519PublicKey.from_public_bytes(public_key_bytes)
         pub_key.verify(signature, data)
         return True   # Only reached if verify() doesn't throw an exception
-    except InvalidSignature:
+    except (InvalidSignature, ValueError):
         return False  # Caught a bad signature
 
 def seal(recipient_ed25519_pub_bytes: bytes, plaintext: bytes, aad: bytes) -> tuple[bytes, bytes, bytes]:
@@ -59,8 +93,7 @@ def seal(recipient_ed25519_pub_bytes: bytes, plaintext: bytes, aad: bytes) -> tu
     # but for this project, we can generate a temporary X25519 key for the recipient directly 
     # to simulate the capability (or we can alternatively use a mathematical wrapper).
     # For now, we are directly using X25519 keys for the exchange.
-    recipient_x25519_pub = x25519.X25519PublicKey.from_public_bytes(recipient_ed25519_pub_bytes)
-    
+    recipient_x25519_pub = _ed25519_pub_to_x25519(recipient_ed25519_pub_bytes)    
     # 3. Derive the Shared Secret
     shared_secret = ephemeral_priv.exchange(recipient_x25519_pub)
     
@@ -90,13 +123,7 @@ def open_msg(my_ed25519_priv: ed25519.Ed25519PrivateKey, ephemeral_pub_bytes: by
     """
     try:
         # 1. We must convert our Ed25519 signature key into an X25519 key for the math exchange.
-        my_x25519_priv = x25519.X25519PrivateKey.from_private_bytes(
-            my_ed25519_priv.private_bytes(
-                encoding=serialization.Encoding.Raw,
-                format=serialization.PrivateFormat.Raw,
-                encryption_algorithm=serialization.NoEncryption()
-            )
-        )
+        my_x25519_priv = _ed25519_priv_to_x25519(my_ed25519_priv)
         
         # 2. Load the sender's throwaway (ephemeral) public key from the packet bytes
         ephemeral_pub = x25519.X25519PublicKey.from_public_bytes(ephemeral_pub_bytes)
