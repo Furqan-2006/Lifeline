@@ -1,0 +1,36 @@
+# Example scenario (contract C4 section 4.2). The values below are starting points
+# from the WP0 report: proposal layout 1200 x 1200 m, 24 handhelds + 6 relays,
+# 100 m handheld range, 500 m relay range, 5% receiver loss. Agree the rest
+# (duration, workload size) with the team before the evaluation runs.
+
+[run]
+name = "proposal_loss05"
+seed = 1
+duration_s = 900.0
+
+[area]
+width_m = 1200.0
+height_m = 1200.0
+
+[nodes]
+count = 30
+relay_count = 6
+handheld_range_m = 100.0
+relay_range_m = 500.0
+
+[mobility]
+model = "random_waypoint"
+speed_min_mps = 0.5
+speed_max_mps = 2.0
+
+[loss]
+receiver_loss_probability = 0.05
+per_hop_delay_ms = 20.0
+
+[workload]
+texts = 30
+text_min_separation_m = 300.0
+sos_beacons = 3
+
+[contacts]
+verified_pairs = [["n01", "n02"], ["n03", "n04"]]
