@@ -90,6 +90,19 @@ def test_learns_each_other_and_reports_a_new_neighbor_once():
     assert _neighbor_events(h.sinks["n01"]) == ["NEIGHBOR_UP"]  # refreshes do not log
 
 
+def test_first_hello_is_sent_at_startup_not_after_an_interval():
+    async def scenario():
+        h = _Harness(("n01", "n02"))
+        h.net.set_link("n01", "n02")
+        await h.start()
+        await h.clock.advance(0.0)  # no time passes: only the startup beacons can have arrived
+        known = len(h.mgrs["n01"].neighbors()), len(h.mgrs["n02"].neighbors())
+        await h.stop()
+        return known
+
+    assert asyncio.run(scenario()) == (1, 1)
+
+
 def test_relay_class_is_recorded():
     async def scenario():
         h = _Harness(("n01", "n02"), classes={"n01": NODE_CLASS_RELAY})

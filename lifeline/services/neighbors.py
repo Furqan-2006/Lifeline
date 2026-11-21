@@ -85,7 +85,8 @@ class NeighborManager:
 
         self._started = True
         interval = self._ctx.config.hello_interval_s     # first beacon at random offset in [0, interval); nodes do not sync
-        self._node.every(interval, self.send_hello, start_offset_s=0.0, jitter_s=interval)
+        self.send_hello()
+        self._node.every(interval, self.send_hello, start_offset_s=interval, jitter_s=interval / 2)
         self._node.every(interval / 2, self._sweep, start_offset_s=interval / 2)
 
     def send_hello(self) -> None:
