@@ -1,0 +1,95 @@
+{
+  "verdict": "FAIL",
+  "rows": [
+    {
+      "distance_m": 100,
+      "iw_handheld_before_dbm": 20.0,
+      "iw_handheld_at_start_dbm": 20.0,
+      "iw_handheld_during_dbm": 20.0,
+      "iw_relay_before_dbm": 20.0,
+      "iw_relay_at_start_dbm": 20.0,
+      "iw_relay_during_dbm": 20.0,
+      "iw_handheld_after_dbm": 20.0,
+      "iw_relay_after_dbm": 20.0,
+      "during_sampled_while_sending": true,
+      "attr_handheld_dbm": 20,
+      "attr_relay_dbm": 48,
+      "handheld_to_relay_fraction": 1.0
+    },
+    {
+      "distance_m": 200,
+      "iw_handheld_before_dbm": 20.0,
+      "iw_handheld_at_start_dbm": 20.0,
+      "iw_handheld_during_dbm": 20.0,
+      "iw_relay_before_dbm": 20.0,
+      "iw_relay_at_start_dbm": 20.0,
+      "iw_relay_during_dbm": 20.0,
+      "iw_handheld_after_dbm": 20.0,
+      "iw_relay_after_dbm": 20.0,
+      "during_sampled_while_sending": true,
+      "attr_handheld_dbm": 20,
+      "attr_relay_dbm": 48,
+      "handheld_to_relay_fraction": 1.0
+    },
+    {
+      "distance_m": 400,
+      "iw_handheld_before_dbm": 20.0,
+      "iw_handheld_at_start_dbm": 20.0,
+      "iw_handheld_during_dbm": 20.0,
+      "iw_relay_before_dbm": 20.0,
+      "iw_relay_at_start_dbm": 20.0,
+      "iw_relay_during_dbm": 20.0,
+      "iw_handheld_after_dbm": 20.0,
+      "iw_relay_after_dbm": 20.0,
+      "during_sampled_while_sending": true,
+      "attr_handheld_dbm": 20,
+      "attr_relay_dbm": 48,
+      "handheld_to_relay_fraction": 1.0
+    },
+    {
+      "distance_m": 500,
+      "iw_handheld_before_dbm": 20.0,
+      "iw_handheld_at_start_dbm": 20.0,
+      "iw_handheld_during_dbm": 20.0,
+      "iw_relay_before_dbm": 20.0,
+      "iw_relay_at_start_dbm": 20.0,
+      "iw_relay_during_dbm": 20.0,
+      "iw_handheld_after_dbm": 20.0,
+      "iw_relay_after_dbm": 20.0,
+      "during_sampled_while_sending": true,
+      "attr_handheld_dbm": 20,
+      "attr_relay_dbm": 48,
+      "handheld_to_relay_fraction": 1.0
+    }
+  ],
+  "headline": {
+    "expected_configured_handheld_dbm": 20.0,
+    "measured_configured_handheld_dbm": [
+      {
+        "at_start": 20.0,
+        "during": 20.0
+      },
+      {
+        "at_start": 20.0,
+        "during": 20.0
+      },
+      {
+        "at_start": 20.0,
+        "during": 20.0
+      },
+      {
+        "at_start": 20.0,
+        "during": 20.0
+      }
+    ],
+    "handheld_to_relay_at_500m": 1.0,
+    "qualifier": "iw reports the configured interface transmit power, not independently measured RF power",
+    "diagnosis": "iw_and_attribute_disagree"
+  },
+  "meta": {
+    "exponent": 4.0,
+    "quick": false,
+    "host_python": "3.14.4",
+    "when": "2026-11-09 22:45:19"
+  }
+}

@@ -1,0 +1,108 @@
+{
+  "verdict": "INFO",
+  "frames": 1000,
+  "curve": [
+    {
+      "distance_m": 50,
+      "received": 992,
+      "fraction": 0.992
+    },
+    {
+      "distance_m": 60,
+      "received": 992,
+      "fraction": 0.992
+    },
+    {
+      "distance_m": 70,
+      "received": 992,
+      "fraction": 0.992
+    },
+    {
+      "distance_m": 80,
+      "received": 992,
+      "fraction": 0.992
+    },
+    {
+      "distance_m": 90,
+      "received": 992,
+      "fraction": 0.992
+    },
+    {
+      "distance_m": 100,
+      "received": 992,
+      "fraction": 0.992
+    },
+    {
+      "distance_m": 110,
+      "received": 0,
+      "fraction": 0.0
+    },
+    {
+      "distance_m": 120,
+      "received": 0,
+      "fraction": 0.0
+    },
+    {
+      "distance_m": 130,
+      "received": 0,
+      "fraction": 0.0
+    },
+    {
+      "distance_m": 140,
+      "received": 0,
+      "fraction": 0.0
+    },
+    {
+      "distance_m": 150,
+      "received": 0,
+      "fraction": 0.0
+    },
+    {
+      "distance_m": 160,
+      "received": 0,
+      "fraction": 0.0
+    },
+    {
+      "distance_m": 170,
+      "received": 0,
+      "fraction": 0.0
+    },
+    {
+      "distance_m": 180,
+      "received": 0,
+      "fraction": 0.0
+    },
+    {
+      "distance_m": 190,
+      "received": 0,
+      "fraction": 0.0
+    },
+    {
+      "distance_m": 200,
+      "received": 0,
+      "fraction": 0.0
+    }
+  ],
+  "r90_m": 100,
+  "r10_m": 110,
+  "edge_width_m": 10,
+  "edge_beyond_max": false,
+  "radio": {
+    "txpower_dbm": 20,
+    "nominal_range_m": 100
+  },
+  "headline": {
+    "handheld_r90_m": 100,
+    "edge_width_m": 10,
+    "radio": {
+      "txpower_dbm": 20,
+      "nominal_range_m": 100
+    }
+  },
+  "meta": {
+    "exponent": 4.0,
+    "quick": false,
+    "host_python": "3.14.4",
+    "when": "2026-11-09 16:33:00"
+  }
+}
